@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fearefull.ssomanager" />
+<manifest package="com.fearefull.ssomanager" />
