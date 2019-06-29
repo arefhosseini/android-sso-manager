@@ -1,4 +1,4 @@
-package com.fearefull.ssomanagerexample;
+package com.example.ssomanager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
