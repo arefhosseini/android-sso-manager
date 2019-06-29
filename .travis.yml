@@ -1,0 +1,7 @@
+language: android
+dist: trusty
+android:
+  components:
+    - build-tools-29.0.0
+    - android-29
+    - sys-img-x86-android-29
