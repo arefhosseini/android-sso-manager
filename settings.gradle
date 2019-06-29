@@ -1,1 +1,1 @@
-include ':app', ':ssomanager'
+include ':example', ':ssomanager'
