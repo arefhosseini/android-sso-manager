@@ -10,18 +10,39 @@ import com.fearefull.ssomanager.SSOManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button clickMe;
+    Button checkStatus;
+    Button loginMe;
+    Button logoutMe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        clickMe = findViewById(R.id.click_me);
+        checkStatus = findViewById(R.id.check_status);
+        loginMe = findViewById(R.id.login_me);
+        logoutMe = findViewById(R.id.logout_me);
 
-        clickMe.setOnClickListener(new View.OnClickListener() {
+        checkStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SSOManager.showToast(getApplicationContext(), "hey");
+                if (SSOManager.getInstance().checkLogin())
+                    SSOManager.getInstance().showToast(SSOManager.getInstance().getToken());
+                else
+                    SSOManager.getInstance().showToast("not logged in");
+            }
+        });
+
+        loginMe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SSOManager.getInstance().login("09215206388");
+            }
+        });
+
+        logoutMe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SSOManager.getInstance().logout();
             }
         });
     }
