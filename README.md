@@ -23,7 +23,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.arefhosseini:android-sso-manager:0.0.1'
+	        implementation 'com.github.arefhosseini:android-sso-manager:0.0.4'
 }
 ```
 
@@ -47,7 +47,7 @@ Maven
 <dependency>
 	    <groupId>com.github.arefhosseini</groupId>
 	    <artifactId>android-sso-manager</artifactId>
-	    <version>0.0.1</version>
+	    <version>0.0.4</version>
 </dependency>
 ```
 
