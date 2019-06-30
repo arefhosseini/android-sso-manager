@@ -23,13 +23,37 @@
         android:text="Check Login" />
 
     <Button
-        android:id="@+id/login_me"
+        android:id="@+id/signup_by_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log In" />
+        android:text="Signup By Username" />
 
     <Button
-        android:id="@+id/logout_me"
+        android:id="@+id/signup_by_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Signup By Email" />
+
+    <Button
+        android:id="@+id/request_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Code for Phone Number" />
+
+    <Button
+        android:id="@+id/login_by_phone_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Log In By Phone Number" />
+
+    <Button
+        android:id="@+id/login_by_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Log In By Username" />
+
+    <Button
+        android:id="@+id/logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Log Out" />

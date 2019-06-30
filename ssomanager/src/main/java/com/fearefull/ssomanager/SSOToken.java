@@ -1,6 +1,8 @@
 package com.fearefull.ssomanager;
 
 public class SSOToken {
+
+
     private String accessToken;
     private String refreshToken;
     private long expiresTime;

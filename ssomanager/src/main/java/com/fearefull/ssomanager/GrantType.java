@@ -1,6 +1,6 @@
 package com.fearefull.ssomanager;
 
-public enum GrantType {
+enum GrantType {
     AUTHORIZE("authorization_code"),
     REFRESH("refresh_token"),
     PASSWORD("password"),

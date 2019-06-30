@@ -1,6 +1,6 @@
 package com.fearefull.ssomanager;
 
-public enum Scope {
+enum Scope {
     READ("read"),
     WRITE("write");
 

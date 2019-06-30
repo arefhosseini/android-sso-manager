@@ -13,9 +13,12 @@ import com.fearefull.ssomanager.SSOManager;
 import com.fearefull.ssomanager.SSOUser;
 import com.fearefull.ssomanager.SSOUserStatus;
 
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity {
 
-    private Button checkStatus, logoutMe, loginMe;
+    private Button checkStatus, logout, loginByPhoneNumber, loginByUsername, requestCode,
+            signUpByUsername, signUpByEmail;
     private TextView userStatus;
     private SSOManager ssoManager;
 
@@ -24,8 +27,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         checkStatus = findViewById(R.id.check_status);
-        loginMe = findViewById(R.id.login_me);
-        logoutMe = findViewById(R.id.logout_me);
+        loginByPhoneNumber = findViewById(R.id.login_by_phone_number);
+        loginByUsername = findViewById(R.id.login_by_username);
+        logout = findViewById(R.id.logout);
+        requestCode = findViewById(R.id.request_code);
+        signUpByUsername = findViewById(R.id.signup_by_username);
+        signUpByEmail = findViewById(R.id.signup_by_email);
         userStatus = findViewById(R.id.user_status);
         ssoManager = SSOManager.getInstance();
         
@@ -39,31 +46,118 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loginMe.setOnClickListener(new View.OnClickListener() {
+        requestCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ssoManager.loginByPhoneNumber(
-                        "http://www.mocky.io/v2/597c41390f0000d002f4dbd1",
+                ssoManager.requestCode(AppConstants.REQUEST_CODE_URL,
                         "09215206388",
-                        "0000",
                         new SSOCallback() {
                             @Override
-                            public void onFailure(Exception e, int statusCode) {
-                                if (e.getMessage() != null)
-                                    Log.d("TAG", e.getMessage());
+                            public void onFailure(Exception error, int statusCode) {
+                                if (error.getMessage() != null)
+                                    Log.d("TAG", error.getMessage());
                                 ssoManager.showToast(String.valueOf(statusCode));
                             }
 
                             @Override
-                            public void onResponse(String response, int statusCode) {
-                                ssoManager.showToast(response);
+                            public void onResponse(JSONObject response, int statusCode) {
+                                ssoManager.showToast(response.toString());
+                            }
+                        });
+            }
+        });
+
+        signUpByUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ssoManager.signupByUsername(AppConstants.SIGNUP_BY_USERNAME_URL,
+                        "arefhosseini", "arefaref", "aref", "hosseini",
+                        new SSOCallback() {
+                            @Override
+                            public void onFailure(Exception error, int statusCode) {
+                                if (error.getMessage() != null)
+                                    Log.d("TAG", error.getMessage());
+                                ssoManager.showToast(String.valueOf(statusCode));
+                            }
+
+                            @Override
+                            public void onResponse(JSONObject response, int statusCode) {
+                                ssoManager.showToast(response.toString());
+                            }
+                        });
+            }
+        });
+
+        signUpByEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ssoManager.signupByEmail(AppConstants.SIGNUP_BY_EMAIL_URL,
+                        "arefhosseiniwad@yahoo.com", "arefaref", "aref", "hosseini",
+                        new SSOCallback() {
+                            @Override
+                            public void onFailure(Exception error, int statusCode) {
+                                if (error.getMessage() != null)
+                                    Log.d("TAG", error.getMessage());
+                                ssoManager.showToast(String.valueOf(statusCode));
+                            }
+
+                            @Override
+                            public void onResponse(JSONObject response, int statusCode) {
+                                ssoManager.showToast(response.toString());
+                            }
+                        });
+            }
+        });
+
+        loginByPhoneNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ssoManager.loginByPhoneNumber(
+                        AppConstants.LOGIN_BY_PHONE_NUMBER_URL,
+                        "09215206388",
+                        "3154",
+                        new SSOCallback() {
+                            @Override
+                            public void onFailure(Exception error, int statusCode) {
+                                if (error.getMessage() != null)
+                                    Log.d("TAG", error.getMessage());
+                                ssoManager.showToast(String.valueOf(statusCode));
+                            }
+
+                            @Override
+                            public void onResponse(JSONObject response, int statusCode) {
+                                ssoManager.showToast(response.toString());
                                 checkUserStatus();
                             }
                         });
             }
         });
 
-        logoutMe.setOnClickListener(new View.OnClickListener() {
+        loginByUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ssoManager.loginByUsername(
+                        AppConstants.LOGIN_BY_USERNAME_URL,
+                        "fearefull",
+                        "aref1441375",
+                        new SSOCallback() {
+                            @Override
+                            public void onFailure(Exception error, int statusCode) {
+                                if (error.getMessage() != null)
+                                    Log.d("TAG", error.getMessage());
+                                ssoManager.showToast(String.valueOf(statusCode));
+                            }
+
+                            @Override
+                            public void onResponse(JSONObject response, int statusCode) {
+                                ssoManager.showToast(response.toString());
+                                checkUserStatus();
+                            }
+                        });
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ssoManager.logout();
@@ -93,6 +187,5 @@ public class MainActivity extends AppCompatActivity {
         }
         else
             userStatus.setText(R.string.no_user);
-
     }
 }

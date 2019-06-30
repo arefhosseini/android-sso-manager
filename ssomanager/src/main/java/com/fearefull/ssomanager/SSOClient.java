@@ -1,6 +1,6 @@
 package com.fearefull.ssomanager;
 
-public class SSOClient {
+class SSOClient {
     private String clientId;
     private String clientSecret;
 
@@ -9,11 +9,11 @@ public class SSOClient {
         this.clientSecret = clientSecret;
     }
 
-    public String getClientId() {
+    String getClientId() {
         return clientId;
     }
 
-    public String getClientSecret() {
+    String getClientSecret() {
         return clientSecret;
     }
 }
