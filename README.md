@@ -12,10 +12,10 @@ Gradle
 
 ```groovy
 allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
 }
 ```
 
@@ -23,7 +23,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.arefhosseini:android-sso-manager:0.0.4'
+	implementation 'com.github.arefhosseini:android-sso-manager:0.0.4'
 }
 ```
 
@@ -34,10 +34,10 @@ Maven
 
 ```xml
 <repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
 </repositories>
 ```
 
@@ -45,9 +45,9 @@ Maven
 
 ```xml
 <dependency>
-	    <groupId>com.github.arefhosseini</groupId>
-	    <artifactId>android-sso-manager</artifactId>
-	    <version>0.0.4</version>
+	<groupId>com.github.arefhosseini</groupId>
+	<artifactId>android-sso-manager</artifactId>
+	<version>0.0.4</version>
 </dependency>
 ```
 
