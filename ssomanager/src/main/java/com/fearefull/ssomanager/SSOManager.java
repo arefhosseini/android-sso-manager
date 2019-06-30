@@ -6,60 +6,102 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
-import java.io.IOException;
+import static com.fearefull.ssomanager.SSOConstants.SSO_PREFS_FILE_NAME;
+import static com.fearefull.ssomanager.SSOConstants.SSO_PREFS_USER;
+import static com.fearefull.ssomanager.SSOConstants.SSO_MANAGER_TAG;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import static com.fearefull.ssomanager.Constants.SSO_PREFS_FILE_NAME;
-import static com.fearefull.ssomanager.Constants.SSO_PREFS_NAME;
-
-public class SSOManager {
+public class SSOManager implements SSO {
     @SuppressLint("StaticFieldLeak")
     private static SSOManager INSTANCE;
     private final Context context;
-    private String token;
-    private SSOStatus ssoStatus;
-    private OkHttpClient client;
+    private final SSOClient ssoClient;
+    private SSOUser ssoUser;
+    private RequestQueue queue;
 
     private SSOManager(Builder builder) {
-        if (builder == null) {
+        if (builder == null)
             throw new IllegalArgumentException("Builder cannot be null");
-        }
-        if (builder.context == null) {
+        if (builder.context == null)
             throw new IllegalArgumentException("Context cannot be null");
-        }
+        if (builder.ssoClient == null)
+            throw new IllegalArgumentException("SSO Client cannot be null");
         context = builder.context;
-        client = new OkHttpClient();
-        SharedPreferences pref = context.getSharedPreferences(SSO_PREFS_FILE_NAME,
+        ssoClient = builder.ssoClient;
+
+        Gson gson = new Gson();
+        String json = getSharedPrefs().getString(SSO_PREFS_USER, "");
+        ssoUser = gson.fromJson(json, SSOUser.class);
+        if (ssoUser == null)
+            ssoUser = new SSOUser();
+        queue = Volley.newRequestQueue(context);
+    }
+
+    private SharedPreferences getSharedPrefs() {
+        return context.getSharedPreferences(SSO_PREFS_FILE_NAME,
                 Context.MODE_PRIVATE);
-        token = pref.getString(SSO_PREFS_NAME, null);
-        if (token == null || token.isEmpty())
-            ssoStatus = SSOStatus.NOT_LOGGED_IN;
-        else
-            ssoStatus = SSOStatus.LOGGED_IN;
     }
 
-    public static class Builder {
-        private Context context;
-
-        public Builder(){}
-
-        public Builder setContext(Context context) {
-            this.context = context;
-            return this;
-        }
-
-        public void build() throws IllegalArgumentException {
-            INSTANCE = new SSOManager(this);
-        }
+    private SharedPreferences.Editor getEditor() {
+        return context.getSharedPreferences(SSO_PREFS_FILE_NAME,
+                Context.MODE_PRIVATE).edit();
     }
 
+    private SSOToken getOauthToken(String response) {
+        long currentTimeStamp = System.currentTimeMillis()/1000;
+        return new SSOToken("acc", "ref",
+                currentTimeStamp, SSOTokenType.getSSOTokenType("bearer"));
+    }
+
+    private void saveUser(SSOToken token) {
+        ssoUser.updateUserStatus(SSOUserStatus.USER_OK);
+        ssoUser.updateToken(token);
+        Gson gson = new Gson();
+        String json = gson.toJson(ssoUser);
+        SharedPreferences.Editor editor = getEditor();
+        editor.putString(SSO_PREFS_USER, json);
+        editor.apply();
+    }
+
+    private void saveUserByPhoneNumber(String phoneNumber, SSOToken token) {
+        ssoUser.updatePhoneNumber(phoneNumber);
+        saveUser(token);
+        Log.d(SSO_MANAGER_TAG, "User logged in by phone number successfully");
+    }
+
+    private void saveUserByUsername(String username, String password, SSOToken token) {
+        ssoUser.updateUsername(username);
+        ssoUser.updatePassword(password);
+        saveUser(token);
+        Log.d(SSO_MANAGER_TAG, "User logged in by username successfully");
+    }
+
+    private void saveUserByEmail(String email, String password, SSOToken token) {
+        ssoUser.updateEmail(email);
+        ssoUser.updatePassword(password);
+        saveUser(token);
+        Log.d(SSO_MANAGER_TAG, "User logged in by email successfully");
+    }
+
+    private void removeUser() {
+        SharedPreferences.Editor editor = getEditor();
+        editor.remove(SSO_PREFS_USER);
+        editor.apply();
+        ssoUser = new SSOUser();
+        Log.d(SSO_MANAGER_TAG, "User removed");
+    }
+
+    private void addToQueue(Request request) {
+        queue.add(request);
+    }
 
     public static SSOManager getInstance() {
         if (INSTANCE == null) {
@@ -68,51 +110,91 @@ public class SSOManager {
         return INSTANCE;
     }
 
+    @Override
     public void showToast(String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    public SSOStatus checkLogin() {
-        return ssoStatus;
+    @Override
+    public SSOUserStatus checkLogin() {
+        return ssoUser.getUserStatus();
     }
 
-    public void login(String url, final String phoneNumber, final SSOCallback ssoCallback) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                call.cancel();
-                Log.d("SSO Manager", "User logged in failed");
-                ssoCallback.onFailure(e);
-            }
+    @Override
+    public void requestCode(String url, String phoneNumber, SSOCallback ssoCallback) {
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                SharedPreferences.Editor editor = context.getSharedPreferences(SSO_PREFS_FILE_NAME,
-                        Context.MODE_PRIVATE).edit();
-                editor.putString(SSO_PREFS_NAME, phoneNumber);
-                editor.apply();
-                token = phoneNumber;
-                ssoStatus = SSOStatus.LOGGED_IN;
-                Log.d("SSO Manager", "User logged in successfully");
-                ssoCallback.onResponse(response);
-            }
-        });
     }
 
+    @Override
+    public void loginByPhoneNumber(String url, final String phoneNumber,
+                                   final String verificationCode, final SSOCallback ssoCallback) {
+        final int[] statusCode = new int[1];
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                saveUserByPhoneNumber(phoneNumber, getOauthToken(response));
+                ssoCallback.onResponse(response, statusCode[0]);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(SSO_MANAGER_TAG,"Error: " + error.toString());
+                ssoCallback.onFailure(error, statusCode[0]);
+            }
+        }) {
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                statusCode[0] = response.statusCode;
+                return super.parseNetworkResponse(response);
+            }
+        };
+        addToQueue(stringRequest);
+    }
+
+    @Override
+    public void loginByUsername(String url, String username, String password, SSOCallback ssoCallback) {
+
+    }
+
+    @Override
+    public void loginByEmail(String url, String email, String password, SSOCallback ssoCallback) {
+
+    }
+
+    @Override
     public void logout() {
-        SharedPreferences.Editor editor = context.getSharedPreferences(SSO_PREFS_FILE_NAME,
-                Context.MODE_PRIVATE).edit();
-        editor.remove(SSO_PREFS_NAME);
-        editor.apply();
-        token = null;
-        ssoStatus = SSOStatus.NOT_LOGGED_IN;
-        Log.d("SSO Manager", "User logged out");
+        removeUser();
     }
 
-    public String getToken() {
-        return token;
+    @Override
+    public SSOUser getUser() {
+        return ssoUser;
+    }
+
+    @Override
+    public void destroy() {
+        if (queue != null)
+            queue.cancelAll(SSO_MANAGER_TAG);
+    }
+
+    public static class Builder {
+        private Context context;
+        private SSOClient ssoClient;
+
+        public Builder(){}
+
+        public Builder setContext(Context context) {
+            this.context = context;
+            return this;
+        }
+
+        public Builder setClient(String clientId, String clientSecret) {
+            this.ssoClient = new SSOClient(clientId, clientSecret);
+            return this;
+        }
+
+        public void build() throws IllegalArgumentException {
+            INSTANCE = new SSOManager(this);
+        }
     }
 }

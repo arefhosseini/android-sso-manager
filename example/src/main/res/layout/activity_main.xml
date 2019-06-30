@@ -7,11 +7,20 @@
     android:gravity="center"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/user_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:padding="8dp"
+        android:layout_margin="4dp"/>
+
     <Button
         android:id="@+id/check_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Status" />
+        android:text="Check Login" />
 
     <Button
         android:id="@+id/login_me"

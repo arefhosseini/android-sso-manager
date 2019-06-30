@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SSO Manager Example</string>
+    <string name="no_user">No user logged in</string>
 </resources>

@@ -13,5 +13,6 @@ android {
 }
 
 dependencies {
-    implementation('com.squareup.okhttp3:okhttp:4.0.0')
+    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }

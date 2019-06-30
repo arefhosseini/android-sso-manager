@@ -11,6 +11,7 @@ public class App extends Application {
 
         new SSOManager.Builder()
                 .setContext(getApplicationContext())
+                .setClient("clientId", "clientSecret")
                 .build();
 
     }
