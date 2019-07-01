@@ -53,12 +53,9 @@ public class MainActivity extends AppCompatActivity {
                         "09215206388",
                         new SSOCallback() {
                             @Override
-                            public void onFailure(Exception error, int statusCode) {
-                                if (error.getMessage() != null)
-                                    Log.d("TAG", error.getMessage());
-                                ssoManager.showToast(String.valueOf(statusCode));
+                            public void onFailure(Exception error, String response, int statusCode) {
+                                showErrorMessage(error, statusCode);
                             }
-
                             @Override
                             public void onResponse(JSONObject response, int statusCode) {
                                 ssoManager.showToast(response.toString());
@@ -74,12 +71,9 @@ public class MainActivity extends AppCompatActivity {
                         "arefhosseini", "arefaref", "aref", "hosseini",
                         new SSOCallback() {
                             @Override
-                            public void onFailure(Exception error, int statusCode) {
-                                if (error.getMessage() != null)
-                                    Log.d("TAG", error.getMessage());
-                                ssoManager.showToast(String.valueOf(statusCode));
+                            public void onFailure(Exception error, String response, int statusCode) {
+                                showErrorMessage(error, statusCode);
                             }
-
                             @Override
                             public void onResponse(JSONObject response, int statusCode) {
                                 ssoManager.showToast(response.toString());
@@ -95,12 +89,9 @@ public class MainActivity extends AppCompatActivity {
                         "arefhosseiniwad@yahoo.com", "arefaref", "aref", "hosseini",
                         new SSOCallback() {
                             @Override
-                            public void onFailure(Exception error, int statusCode) {
-                                if (error.getMessage() != null)
-                                    Log.d("TAG", error.getMessage());
-                                ssoManager.showToast(String.valueOf(statusCode));
+                            public void onFailure(Exception error, String response, int statusCode) {
+                                showErrorMessage(error, statusCode);
                             }
-
                             @Override
                             public void onResponse(JSONObject response, int statusCode) {
                                 ssoManager.showToast(response.toString());
@@ -118,12 +109,9 @@ public class MainActivity extends AppCompatActivity {
                         "3154",
                         new SSOCallback() {
                             @Override
-                            public void onFailure(Exception error, int statusCode) {
-                                if (error.getMessage() != null)
-                                    Log.d("TAG", error.getMessage());
-                                ssoManager.showToast(String.valueOf(statusCode));
+                            public void onFailure(Exception error, String response, int statusCode) {
+                                showErrorMessage(error, statusCode);
                             }
-
                             @Override
                             public void onResponse(JSONObject response, int statusCode) {
                                 ssoManager.showToast(response.toString());
@@ -142,12 +130,9 @@ public class MainActivity extends AppCompatActivity {
                         "aref1441375",
                         new SSOCallback() {
                             @Override
-                            public void onFailure(Exception error, int statusCode) {
-                                if (error.getMessage() != null)
-                                    Log.d("TAG", error.getMessage());
-                                ssoManager.showToast(String.valueOf(statusCode));
+                            public void onFailure(Exception error, String response, int statusCode) {
+                                showErrorMessage(error, statusCode);
                             }
-
                             @Override
                             public void onResponse(JSONObject response, int statusCode) {
                                 ssoManager.showToast(response.toString());
@@ -187,5 +172,11 @@ public class MainActivity extends AppCompatActivity {
         }
         else
             userStatus.setText(R.string.no_user);
+    }
+
+    private void showErrorMessage(Exception error, int statusCode) {
+        if (error.getMessage() != null)
+            Log.d("TAG", error.getMessage());
+        ssoManager.showToast(String.valueOf(statusCode));
     }
 }

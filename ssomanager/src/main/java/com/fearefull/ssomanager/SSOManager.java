@@ -6,30 +6,23 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.fearefull.ssomanager.SSOConstants.GET;
 import static com.fearefull.ssomanager.SSOConstants.POST;
-import static com.fearefull.ssomanager.SSOConstants.SCOPE;
 import static com.fearefull.ssomanager.SSOConstants.SSO_MANAGER_TAG;
 import static com.fearefull.ssomanager.SSOConstants.SSO_PREFS_FILE_NAME;
 import static com.fearefull.ssomanager.SSOConstants.SSO_PREFS_USER;
-import static com.fearefull.ssomanager.UserParams.PHONE_NUMBER;
 
 public class SSOManager implements SSO {
     @SuppressLint("StaticFieldLeak")
@@ -139,6 +132,13 @@ public class SSOManager implements SSO {
             ssoUser.updateLastname(lastname);
     }
 
+    private void showSSOError(Exception error, SSOCallback ssoCallback,
+                              String message, int statusCode) {
+        ssoUser.clear();
+        printError("Error in " + message + ": " + error.getMessage());
+        ssoCallback.onFailure(error, error.getMessage(), statusCode);
+    }
+
     public static SSOManager getInstance() {
         if (INSTANCE == null) {
             throw new IllegalArgumentException("SSO Manager is not created!");
@@ -151,8 +151,8 @@ public class SSOManager implements SSO {
                                  String firstname, String lastname, final SSOCallback ssoCallback) {
         ssoUser.clear();
         updateUser(username, password, null, null, firstname, lastname);
-
         final int[] statusCode = new int[1];
+
         try {
             JsonObjectRequest request = new JsonObjectRequest(POST, url,
                     ssoUser.toSignupJsonByUsername(),
@@ -166,9 +166,7 @@ public class SSOManager implements SSO {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            ssoUser.clear();
-                            printError("Error in signup by username: " + error.toString());
-                            ssoCallback.onFailure(error, statusCode[0]);
+                            showSSOError(error, ssoCallback, "signup by username", statusCode[0]);
                         }
                     }) {
                 @Override
@@ -202,9 +200,7 @@ public class SSOManager implements SSO {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            ssoUser.clear();
-                            printError("Error in signup by email: " + error.toString());
-                            ssoCallback.onFailure(error, statusCode[0]);
+                            showSSOError(error, ssoCallback, "signup by email", statusCode[0]);
                         }
                     }) {
                 @Override
@@ -215,6 +211,7 @@ public class SSOManager implements SSO {
             };
             addToQueue(request);
         } catch (JSONException e) {
+            ssoCallback.onFailure(e, e.getMessage(), 400);
             e.printStackTrace();
         }
     }
@@ -232,7 +229,8 @@ public class SSOManager implements SSO {
     @Override
     public void requestCode(String url, final String phoneNumber, final SSOCallback ssoCallback) {
         final int[] statusCode = new int[1];
-        url = url + "?" + PHONE_NUMBER.getText() + "=" + phoneNumber;
+        url = url + "?" + SSOConstants.USER_PHONE_NUMBER + "=" + phoneNumber;
+
         JsonObjectRequest request = new JsonObjectRequest(GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -243,8 +241,7 @@ public class SSOManager implements SSO {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        printError("Error in login by phone number: " + error.toString());
-                        ssoCallback.onFailure(error, statusCode[0]);
+                        showSSOError(error, ssoCallback, "request code", statusCode[0]);
                     }
                 }) {
             @Override
@@ -279,7 +276,7 @@ public class SSOManager implements SSO {
                         } catch (JSONException error) {
                             ssoUser.clear();
                             printError("Error in login by phone number: " + error.toString());
-                            ssoCallback.onFailure(error, statusCode[0]);
+                            ssoCallback.onFailure(error, error.getMessage(), statusCode[0]);
                         }
                         ssoCallback.onResponse(response, statusCode[0]);
                     }
@@ -287,9 +284,7 @@ public class SSOManager implements SSO {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        ssoUser.clear();
-                        printError("Error in login by phone number: " + error.getMessage());
-                        ssoCallback.onFailure(error, statusCode[0]);
+                        showSSOError(error, ssoCallback, "login by phone number", statusCode[0]);
                     }
                 }) {
             @Override
@@ -306,13 +301,12 @@ public class SSOManager implements SSO {
                                 final SSOCallback ssoCallback) {
         final int[] statusCode = new int[1];
         url = url + "?" +
-                UserParams.USERNAME.getText() + "=" + username + "&" +
-                UserParams.PASSWORD.getText() + "=" + password + "&" +
+                SSOConstants.USERNAME + "=" + username + "&" +
+                SSOConstants.PASSWORD + "=" + password + "&" +
                 SSOConstants.GRANT_TYPE + "=" + GrantType.PASSWORD.getText() + "&" +
                 SSOConstants.SCOPE + "=" + Scope.READ.getText() + "&" +
                 SSOConstants.CLIENT_ID + "=" + ssoClient.getClientId() + "&" +
                 SSOConstants.CLIENT_SECRET + "=" + ssoClient.getClientSecret();
-
         JsonObjectRequest request = new JsonObjectRequest(POST, url,
                 null,
                 new Response.Listener<JSONObject>() {
@@ -321,9 +315,7 @@ public class SSOManager implements SSO {
                         try {
                             saveUserByUsername(username, password, getOauthToken(response));
                         } catch (JSONException error) {
-                            ssoUser.clear();
-                            printError("Error in login by username: " + error.toString());
-                            ssoCallback.onFailure(error, statusCode[0]);
+                            showSSOError(error, ssoCallback, "login by phone username", statusCode[0]);
                         }
                         ssoCallback.onResponse(response, statusCode[0]);
                     }
@@ -331,9 +323,7 @@ public class SSOManager implements SSO {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        ssoUser.clear();
-                        printError("Error in login by username: " + error.getMessage());
-                        ssoCallback.onFailure(error, statusCode[0]);
+                        showSSOError(error, ssoCallback, "login by phone username", statusCode[0]);
                     }
                 }) {
             @Override

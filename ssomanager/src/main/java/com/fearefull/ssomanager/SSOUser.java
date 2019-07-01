@@ -1,11 +1,7 @@
 package com.fearefull.ssomanager;
 
-import com.google.gson.JsonObject;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
 
 public class SSOUser {
     private String phoneNumber;
@@ -119,21 +115,21 @@ public class SSOUser {
 
     JSONObject toSignupJsonByUsername() throws JSONException {
         JSONObject jsonBody = new JSONObject();
-        jsonBody.put(UserParams.USERNAME.getText(), username);
-        jsonBody.put(UserParams.PASSWORD.getText(), password);
-        jsonBody.put(UserParams.FIRST_NAME_BY_USERNAME.getText(), firstname);
-        jsonBody.put(UserParams.LAST_NAME.getText(), lastname);
+        jsonBody.put(SSOConstants.USERNAME, username);
+        jsonBody.put(SSOConstants.PASSWORD, password);
+        jsonBody.put(SSOConstants.FIRST_NAME_BY_USERNAME, firstname);
+        jsonBody.put(SSOConstants.LAST_NAME, lastname);
 
         return jsonBody;
     }
 
     JSONObject toSignupJsonByEmail() throws JSONException {
         JSONObject jsonBody = new JSONObject();
-        jsonBody.put(UserParams.USERNAME.getText(), username);
-        jsonBody.put(UserParams.PASSWORD.getText(), password);
-        jsonBody.put(UserParams.EMAIL.getText(), email);
-        jsonBody.put(UserParams.FIRST_NAME_BY_Email.getText(), firstname);
-        jsonBody.put(UserParams.LAST_NAME.getText(), lastname);
+        jsonBody.put(SSOConstants.USERNAME, username);
+        jsonBody.put(SSOConstants.PASSWORD, password);
+        jsonBody.put(SSOConstants.EMAIL, email);
+        jsonBody.put(SSOConstants.FIRST_NAME_BY_Email, firstname);
+        jsonBody.put(SSOConstants.LAST_NAME, lastname);
 
         return jsonBody;
     }
